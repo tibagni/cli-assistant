@@ -3,14 +3,17 @@
 import argparse
 import argcomplete
 import sys
+import os
+import json
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import wraps
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Dict
+from ai import get_shell_command
 
 _available_commands: List["Command"] = []
-
+_ai_config: Dict = {}
 
 @dataclass
 class Argument(ABC):
@@ -60,8 +63,18 @@ class Command:
 
 
 def _validate_ai_config():
-    #TODO
-    pass
+    global _ai_config
+    if not _ai_config:
+        # TODO read it from ~/.cli-assist in the future
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        config_path = os.path.join(script_dir, "config.json")
+
+        # TODO ask the user to create the config file if it does not exist
+        # Create a default template and ask the user if they want to open with $EDITOR. If not
+        # let them choose the editor, then open the template so they can edit the configs
+
+        with open(config_path, "r") as config_file:
+            _ai_config = json.load(config_file)
 
 
 def command(args: List[Argument]):
@@ -148,9 +161,28 @@ def handle_explain(args):
     ]
 )
 def handle_do(args):
-    """Describe in plain English the task you want to perform."""
-    print(f"TODO: Send this prompt to an AI service: '{args.prompt}'")
+    """Run a shell command based on a natural language description."""
+    result = get_shell_command(_ai_config, args.prompt)
+    if not result or not result.get("command"):
+        print("Could not generate a command for the given prompt.", file=sys.stderr)
+        sys.exit(1)
 
+    print(f"Suggested command:\n  {result['command']}\n")
+    print(f"Explanation:\n  {result['explanation']}\n")
+
+    if result["risk_assessment"] > 0 and result["disclaimer"]:
+        print(f"⚠️  Disclaimer:\n  {result['disclaimer']}\n")
+
+    try:
+        confirm = input("Do you want to run this command? [y/N] ")
+        if confirm.lower() == "y":
+            print("Running command...")
+            os.system(result["command"])
+        else:
+            print("Command not executed.")
+    except (KeyboardInterrupt, EOFError):
+        print("\nCommand not executed.")
+        sys.exit(0)
 
 @command(
     [
@@ -163,6 +195,19 @@ def handle_do(args):
 def handle_summarize(args):
     """Summarizes the content of a given file or directory."""
     print(f"TODO: Summarize the content of '{args.path}'")
+
+
+@command(
+    [
+        PositionalArg(
+            name="page",
+            help="The man page you want explained in simple terms",
+        )
+    ]
+)
+def handle_man(args):
+    """Summarizes and explains in simple terms, with examples, the contents of a man page."""
+    print(f"TODO: man page fo '{args.page}'")
 
 
 ##############################################################################

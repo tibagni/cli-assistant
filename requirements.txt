@@ -1,1 +1,3 @@
 argcomplete==3.6.2
+aisuite==0.1.11
+docstring_parser==0.17.0
