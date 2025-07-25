@@ -43,9 +43,6 @@ class Environment:
         else:
             raise ValueError(f"Tool '{tool_name}' not found.")
 
-    def read_user_prompt(self, message: str = "> ") -> str:
-        return input(f"{message} ")
-
     @staticmethod
     def tool():
         def decorator(func):
@@ -162,7 +159,7 @@ class Agent:
 
 # ===================================================================================
 
-
+# TODO remove below code - This is just example for reference
 class MyEnvironment(Environment):
     @Environment.tool()
     def list_files(self, path: str = os.getcwd()) -> List[str]:
@@ -188,28 +185,5 @@ class InteractiveEnvironment(MyEnvironment):
             print(f"\n{agent_response.content}\n")
         return self.read_user_prompt()
 
-
-def main():
-    # Construct a robust path to config.json relative to this script's location
-    # to ensure the test runner works correctly when run as a module.
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.dirname(script_dir)
-    config_path = os.path.join(project_root, "config.json")
-
-    with open(config_path, "r") as config_file:
-        config = json.load(config_file)
-
-    environment = InteractiveEnvironment()
-    task = environment.read_user_prompt("What do you want to do: ")
-    agent = Agent(config, environment)
-    agent.run(task, max_iterations=200)
-
-
-def main_test():
-    env = MyEnvironment()
-    print(env.tools)
-
-
-if __name__ == "__main__":
-    main()
-    # main_test()
+    def read_user_prompt(self, message: str = "> ") -> str:
+        return input(f"{message} ")

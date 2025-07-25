@@ -1,11 +1,13 @@
 import json
+import sys
+import os
+
 from typing import Dict, Optional
+from dataclasses import dataclass
 
-from .agent import Agent, Environment
+from ..agent import Agent, Environment
 
-
-def get_shell_command(config: Dict, natual_language_description: str) -> Optional[Dict]:
-    prompt = """
+SYSTEM_PROMPT = """
 You are a highly experienced Unix system administrator and command line expert. Given a natural 
 language task, output a Bash command that solves it, along with a safety assessment and explanation.
 
@@ -34,25 +36,55 @@ trailing commas):
 
 Ensure the JSON is valid and can be parsed with standard JSON parsers. 
 Do not include markdown, code blocks, or comments. Only output the JSON.
-    """
+"""
 
+@dataclass
+class CommandSuggestion:
+    """Represents a command suggestion from the AI, including metadata."""
+
+    command: str
+    risk_assessment: int
+    explanation: str
+    disclaimer: str
+
+
+def _suggest_shell_command(config: Dict, natual_language_description: str) -> Optional[CommandSuggestion]:
     # For single-shot tasks, we can use a default, non-interactive environment.
     environment = Environment()
-    agent = Agent(config, environment, prompt)
+    agent = Agent(config, environment, SYSTEM_PROMPT)
 
     # The agent runs for one cycle and returns the final response.
     response = agent.run(natual_language_description, max_iterations=1)
 
     if response.content:
         try:
-            return json.loads(response.content)
-        except json.JSONDecodeError:
-            # If the LLM fails to return valid JSON, create a default error response.
-            return {
-                "command": "",
-                "risk_assessment": 0,
-                "explanation": "Error: The AI failed to return a valid command.",
-                "disclaimer": "",
-            }
+            data = json.loads(response.content)
+            return CommandSuggestion(**data)
+        except (json.JSONDecodeError, TypeError):
+            return CommandSuggestion(
+                command="",
+                risk_assessment=0,
+                explanation="Error: The AI failed to return a valid command.",
+                disclaimer="",
+            )
 
     return None
+
+def do(config: Dict, natual_language_description: str):
+    result = _suggest_shell_command(config, natual_language_description)
+    if not result or not result.command:
+        print("Could not generate a command for the given prompt.", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Suggested command:\n  {result.command}\n")
+    print(f"Explanation:\n  {result.explanation}\n")
+
+    if result.risk_assessment > 0 and result.disclaimer:
+        print(f"⚠️  Disclaimer:\n  {result.disclaimer}\n")
+
+    try:
+        confirm = input("Do you want to run this command? [y/N] ")
+        if confirm.lower() == "y":
+            os.system(result.command)
+    except (KeyboardInterrupt, EOFError):
+        sys.exit(0)

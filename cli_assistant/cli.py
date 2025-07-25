@@ -9,8 +9,8 @@ import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import wraps
-from typing import Callable, List, Optional, Dict
-from ai import get_shell_command
+from typing import Callable, Dict, List, Optional
+from .ai import do
 
 _available_commands: List["Command"] = []
 _ai_config: Dict = {}
@@ -66,8 +66,8 @@ def _validate_ai_config():
     global _ai_config
     if not _ai_config:
         # TODO read it from ~/.cli-assist in the future
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        config_path = os.path.join(script_dir, "config.json")
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        config_path = os.path.join(project_root, "config.json")
 
         # TODO ask the user to create the config file if it does not exist
         # Create a default template and ask the user if they want to open with $EDITOR. If not
@@ -124,19 +124,7 @@ def command(args: List[Argument]):
 )
 def handle_chat(args):
     """Just chat with an AI from the command line."""
-
-    if args.list and args.resume:
-        print(
-            "Error: Cannot use --list and --resume at the same time.", file=sys.stderr
-        )
-        sys.exit(1)
-
-    if args.list:
-        print("TODO: List previous chat sessions.")
-    elif args.resume:
-        print(f"Resuming '{args.resume}'")
-    else:
-        print("TODO: Start a new interactive chat session.")
+    pass # TODO
 
 
 @command(
@@ -149,7 +137,7 @@ def handle_chat(args):
 )
 def handle_explain(args):
     """Get a detailed explanation of any given shell command."""
-    print(f"TODO: Send this prompt to an AI service: '{args.cmd}'")
+    pass #TODO
 
 
 @command(
@@ -162,27 +150,7 @@ def handle_explain(args):
 )
 def handle_do(args):
     """Run a shell command based on a natural language description."""
-    result = get_shell_command(_ai_config, args.prompt)
-    if not result or not result.get("command"):
-        print("Could not generate a command for the given prompt.", file=sys.stderr)
-        sys.exit(1)
-
-    print(f"Suggested command:\n  {result['command']}\n")
-    print(f"Explanation:\n  {result['explanation']}\n")
-
-    if result["risk_assessment"] > 0 and result["disclaimer"]:
-        print(f"⚠️  Disclaimer:\n  {result['disclaimer']}\n")
-
-    try:
-        confirm = input("Do you want to run this command? [y/N] ")
-        if confirm.lower() == "y":
-            print("Running command...")
-            os.system(result["command"])
-        else:
-            print("Command not executed.")
-    except (KeyboardInterrupt, EOFError):
-        print("\nCommand not executed.")
-        sys.exit(0)
+    do(_ai_config, args.prompt)
 
 @command(
     [
@@ -194,7 +162,7 @@ def handle_do(args):
 )
 def handle_summarize(args):
     """Summarizes the content of a given file or directory."""
-    print(f"TODO: Summarize the content of '{args.path}'")
+    pass # TODO
 
 
 @command(
@@ -207,7 +175,7 @@ def handle_summarize(args):
 )
 def handle_man(args):
     """Summarizes and explains in simple terms, with examples, the contents of a man page."""
-    print(f"TODO: man page fo '{args.page}'")
+    pass # TODO
 
 
 ##############################################################################

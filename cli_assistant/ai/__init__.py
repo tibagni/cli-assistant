@@ -4,12 +4,10 @@ encapsulating the agent, its environment, and the LLM client.
 """
 
 from .agent import Agent, Environment, InteractiveEnvironment, MyEnvironment
-from .assistant import get_shell_command
+from .assistants.do import do
 
 __all__ = [
     "Agent",
     "Environment",
-    "InteractiveEnvironment",
-    "MyEnvironment",
-    "get_shell_command",
+    "do",
 ]
