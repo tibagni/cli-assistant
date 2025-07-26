@@ -156,35 +156,3 @@ class Agent:
 
         # This is reached if max_iterations is hit.
         return response
-
-
-# ===================================================================================
-
-# TODO remove below code - This is just example for reference
-class MyEnvironment(Environment):
-    @Environment.tool()
-    def list_files(self, path: str = os.getcwd()) -> List[str]:
-        """List files in the given path. If no path is given, it will use the current path."""
-        return os.listdir(path)
-
-    @Environment.tool()
-    def read_file(self, file_path: str) -> str:
-        """Read the content of the file specified in 'file_path'."""
-        with open(file_path, "r") as file:
-            return file.read()
-
-
-class InteractiveEnvironment(MyEnvironment):
-    """An environment that prompts the user for input when the agent finishes."""
-
-    def handle_agent_response(
-        self, agent_response: LLMCompletionResponse
-    ) -> Optional[str]:
-        """After the agent responds, print its message and prompt for the next task."""
-        if agent_response.content:
-            # In an interactive session, we print the agent's final message.
-            print(f"\n{agent_response.content}\n")
-        return self.read_user_prompt()
-
-    def read_user_prompt(self, message: str = "> ") -> str:
-        return input(f"{message} ")
