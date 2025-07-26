@@ -8,6 +8,7 @@ from .assistants.do import do
 from .assistants.explain import explain
 from .assistants.man import man
 from .assistants.summarize import summarize
+from .assistants.boilerplate import boilerplate
 
 __all__ = [
     "Agent",
@@ -16,4 +17,5 @@ __all__ = [
     "explain",
     "man",
     "summarize",
+    "boilerplate",
 ]
