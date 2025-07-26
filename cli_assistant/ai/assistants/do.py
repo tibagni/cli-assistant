@@ -7,35 +7,47 @@ from dataclasses import dataclass
 
 from ..agent import Agent, Environment
 
-SYSTEM_PROMPT = """
-You are a highly experienced Unix system administrator and command line expert. Given a natural 
-language task, output a Bash command that solves it, along with a safety assessment and explanation.
-
-Your response must contain the following information:
-1. A bash command that solves the problem. If the problem can't be solved, return an empty string 
-    for the command 
-2. A risk assessment of the command, as follows:
-    - Risk 0: Safe to run. No data is modified or deleted.
-    - Risk 1: May modify or delete user data, but not system-critical files.
-    - Risk 2: May impact system integrity, security, or availability (e.g., running as root, 
-        altering system files).
-    - If the command is empty, the risk assessment must also be 0.
-3. An explanation of the command and how it achieves the solution.
-4. A disclaimer message shown to the user if the command carries any risk (i.e., risk > 0). This
-message must warn the user about what could happen if the command is executed. If the command is
-safe (risk 0), return an empty string.
-
-Make sure your response is a valid JSON object in the following format (with double quotes and no 
-trailing commas):
-{
-    "command": "<bash command>",
-    "risk_assessment": <0|1|2>,
-    "explanation": "<explanation of the command>",
-    "disclaimer": "<disclaimer shown if risk > 0, empty string otherwise>"
+COMMAND_SUGGESTION_SCHEMA = {
+    "name": "command_suggestion",
+    "schema": {
+        "type": "object",
+        "properties": {
+            "command": {
+                "type": "string",
+                "description": "The suggested bash command. Can be an empty string if no command is suitable.",
+            },
+            "risk_assessment": {
+                "type": "integer",
+                "description": "A numerical assessment of the command's potential risk.",
+                "enum": [0, 1, 2],
+            },
+            "explanation": {
+                "type": "string",
+                "description": "A detailed, human-readable explanation of what the command does and how it works.",
+            },
+            "disclaimer": {
+                "type": "string",
+                "description": "A warning message to be displayed for commands with a risk level greater than 0. Should be an empty string for risk 0.",
+            },
+        },
+        "required": ["command", "risk_assessment", "explanation", "disclaimer"],
+    }
 }
 
-Ensure the JSON is valid and can be parsed with standard JSON parsers. 
-Do not include markdown, code blocks, or comments. Only output the JSON.
+SYSTEM_PROMPT = """
+You are a highly experienced Unix system administrator and command line expert.
+Given a natural language task, your goal is to provide a safe and effective Bash command.
+
+Your response must be a JSON object that conforms to the provided schema.
+
+The core requirements for your response are:
+1.  **command**: The corresponding Bash command. If no command is suitable, provide an empty string.
+2.  **risk_assessment**: A numerical rating of the command's potential risk:
+    - 0: Safe to run (e.g., read-only operations like `ls`, `cat`, `grep`).
+    - 1: Potentially destructive (e.g., modifies or deletes user files like `mv`, `cp`, `rm`).
+    - 2: High risk (e.g., requires `sudo`, alters system files, affects security/availability).
+3.  **explanation**: A clear, concise explanation of what the command does.
+4.  **disclaimer**: A warning about potential consequences if the risk is 1 or 2. This should be an empty string for risk 0.
 """
 
 @dataclass
@@ -54,7 +66,13 @@ def _suggest_shell_command(config: Dict, natual_language_description: str) -> Op
     agent = Agent(config, environment, SYSTEM_PROMPT)
 
     # The agent runs for one cycle and returns the final response.
-    response = agent.run(natual_language_description, max_iterations=1)
+    # By providing the schema, we instruct the LLM to return a JSON object
+    # that matches the specified structure, making the output more reliable.
+    response = agent.run(
+        natual_language_description,
+        max_iterations=1,
+        response_format={"type": "json_schema", "json_schema": COMMAND_SUGGESTION_SCHEMA},
+    )
 
     if response.content:
         try:
