@@ -15,8 +15,5 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-# This is the magic part!
-# It tells pip to create a command called `assist`
-# that runs the `main` function from your `cli.py` module.
 [project.scripts]
 assist = "cli_assistant.cli:main"

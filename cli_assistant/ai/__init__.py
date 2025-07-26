@@ -5,9 +5,11 @@ encapsulating the agent, its environment, and the LLM client.
 
 from .agent import Agent, Environment, InteractiveEnvironment, MyEnvironment
 from .assistants.do import do
+from .assistants.explain import explain
 
 __all__ = [
     "Agent",
     "Environment",
     "do",
+    "explain",
 ]
