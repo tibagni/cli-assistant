@@ -7,6 +7,7 @@ from .agent import Agent, Environment
 from .assistants.do import do
 from .assistants.explain import explain
 from .assistants.man import man
+from .assistants.summarize import summarize
 
 __all__ = [
     "Agent",
@@ -14,4 +15,5 @@ __all__ = [
     "do",
     "explain",
     "man",
+    "summarize",
 ]

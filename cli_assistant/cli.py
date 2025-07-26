@@ -10,7 +10,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import wraps
 from typing import Callable, Dict, List, Optional
-from .ai import do, explain, man
+from .ai import do, explain, man, summarize
 
 _available_commands: List["Command"] = []
 _ai_config: Dict = {}
@@ -154,14 +154,15 @@ def handle_do(args):
 @command(
     [
         PositionalArg(
-            name="path",
-            help="The path to the file or directory to summarize.",
+            name="paths",
+            help="One or more paths to files or directories to summarize.",
+            kwargs={"nargs": "+"},
         )
     ]
 )
 def handle_summarize(args):
     """Summarizes the content of a given file or directory."""
-    pass # TODO
+    summarize(_ai_config, args.paths)
 
 
 @command(
