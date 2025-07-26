@@ -103,7 +103,7 @@ class Agent:
             self._messages.append(LLMClient.format_system_message(system_prompt))
 
     def run(
-        self, user_task: str, max_iterations: int = 10
+        self, user_task: str, max_iterations: int = 10, **kwargs
     ) -> LLMCompletionResponse:
         """
         Executes a task with the agent, returning the final completion response.
@@ -123,6 +123,7 @@ class Agent:
                 messages=self._messages[:], # Pass a copy of _messages
                 tools=self.env.get_tools(),
                 max_tokens=1024,
+                **kwargs
             )
 
             # The assistant's response (including content and any tool calls)
