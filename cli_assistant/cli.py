@@ -10,7 +10,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import wraps
 from typing import Callable, Dict, List, Optional
-from .ai import do, explain
+from .ai import do, explain, man
 
 _available_commands: List["Command"] = []
 _ai_config: Dict = {}
@@ -174,7 +174,7 @@ def handle_summarize(args):
 )
 def handle_man(args):
     """Summarizes and explains in simple terms, with examples, the contents of a man page."""
-    pass # TODO
+    man(_ai_config, args.page)
 
 
 ##############################################################################

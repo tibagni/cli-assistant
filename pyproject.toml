@@ -10,6 +10,12 @@ authors = [
 ]
 description = "An AI-powered command-line assistant to supercharge your terminal."
 requires-python = ">=3.8"
+dependencies = [
+  "rich",
+  "argcomplete",
+  "aisuite",
+  "docstring_parser",
+]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
