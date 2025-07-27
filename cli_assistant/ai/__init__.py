@@ -9,6 +9,7 @@ from .assistants.explain import explain
 from .assistants.man import man
 from .assistants.summarize import summarize
 from .assistants.boilerplate import boilerplate
+from .assistants.readmify import readmify
 
 __all__ = [
     "Agent",
@@ -18,4 +19,5 @@ __all__ = [
     "man",
     "summarize",
     "boilerplate",
+    "readmify",
 ]

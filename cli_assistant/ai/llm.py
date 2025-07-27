@@ -9,6 +9,7 @@ class LLMCompletionResponse:
     """Wraps the full assistant message from the LLM API."""
 
     assistant_message: Dict
+    interrupted: bool = False
 
     @property
     def content(self) -> Optional[str]:

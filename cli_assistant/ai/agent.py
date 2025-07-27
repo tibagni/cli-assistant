@@ -122,7 +122,6 @@ class Agent:
                 model=f"{self.config["provider"]}:{self.config['model']}",
                 messages=self._messages[:], # Pass a copy of _messages
                 tools=self.env.get_tools(),
-                max_tokens=1024,
                 **kwargs
             )
 
@@ -155,4 +154,5 @@ class Agent:
                     return response
 
         # This is reached if max_iterations is hit.
+        response.interrupted = True
         return response

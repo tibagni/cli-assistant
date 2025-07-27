@@ -10,7 +10,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import wraps
 from typing import Callable, Dict, List, Optional
-from .ai import do, explain, man, summarize, boilerplate
+from .ai import do, explain, man, summarize, boilerplate, readmify
+
 
 _available_commands: List["Command"] = []
 _ai_config: Dict = {}
@@ -189,6 +190,20 @@ def handle_man(args):
 def handle_boilerplate(args):
     """Generates project boilerplate from a description."""
     boilerplate(_ai_config, args.description)
+
+
+@command(
+    [
+        PositionalArg(
+            name="path",
+            help="The path to the project directory to document. Defaults to the current directory.",
+            kwargs={"nargs": "?", "default": "."},
+        )
+    ]
+)
+def handle_readmify(args):
+    """Generates a README.md file for a project directory."""
+    readmify(_ai_config, args.path)
 
 
 ##############################################################################

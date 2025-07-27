@@ -117,7 +117,7 @@ class TestSummarizeHelpers(unittest.TestCase):
         mock_read_file.return_value = {"file": "file1.py", "snippet": "..."}
         result = summarize._read_sample_of_dir("/fake/dir")
         mock_listdir.assert_called_once_with("/fake/dir")
-        mock_read_file.assert_called_once_with("/fake/dir/file1.py", max_chars=350)
+        mock_read_file.assert_called_once_with("/fake/dir/file1.py")
         self.assertEqual(result["directory"], "/fake/dir")
         self.assertEqual(len(result["overview"]), 1)
         self.assertEqual(result["overview"][0]["file"], "file1.py")
