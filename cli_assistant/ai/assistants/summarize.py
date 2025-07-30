@@ -7,9 +7,9 @@ from rich.markdown import Markdown
 
 from ..agent import Agent, Environment, LLMCompletionResponse
 
-# A reasonable approximation for 1k tokens (1 token ~= 4 chars) to keep prompts concise.
-PROMPT_CHAR_LIMIT = 4000
-MAX_CHAR_LIMIT_PER_FILE = 800
+# A reasonable approximation for 10k tokens (1 token ~= 4 chars) to keep prompts concise.
+PROMPT_CHAR_LIMIT = 40000
+MAX_CHAR_LIMIT_PER_FILE = 10000
 
 SYSTEM_PROMPT = """
 You are a helpful assistant that summarizes the content of files or directories.

@@ -31,7 +31,7 @@ advice — just like ChatGPT.
 You always aim to be helpful, safe, and user-respecting.
 """
 
-FILE_SIZE_LIMIT = 8000
+FILE_SIZE_LIMIT = 40000
 
 class ChatEnvironment(Environment):
     def __init__(self, ai_config: Dict):

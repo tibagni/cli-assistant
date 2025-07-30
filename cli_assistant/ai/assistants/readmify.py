@@ -24,6 +24,7 @@ Your process should be:
 4. Once you have a good understanding, call the `write_readme` tool with the full, well-structured markdown content.
 """
 
+FILE_SIZE_LIMIT = 40000
 
 class ReadmifyEnvironment(Environment):
     """An environment with tools for project exploration and README writing."""
@@ -62,8 +63,8 @@ class ReadmifyEnvironment(Environment):
                 return f"Error: '{path}' is not a file."
             with open(path, "r", encoding="utf-8", errors="ignore") as f:
                 # Add a limit to avoid huge files blowing up the context
-                content = f.read(8000)
-                if len(content) == 8000:
+                content = f.read(FILE_SIZE_LIMIT)
+                if len(content) == FILE_SIZE_LIMIT:
                     content += "\n... (file content truncated)"
 
                 self.console.print(f"[green]✓ Reading file:[/] {path}")                    
