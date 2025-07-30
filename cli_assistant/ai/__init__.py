@@ -10,6 +10,8 @@ from .assistants.man import man
 from .assistants.summarize import summarize
 from .assistants.boilerplate import boilerplate
 from .assistants.readmify import readmify
+from .assistants.chat import chat
+
 
 __all__ = [
     "Agent",
@@ -20,4 +22,5 @@ __all__ = [
     "summarize",
     "boilerplate",
     "readmify",
+    "chat",
 ]

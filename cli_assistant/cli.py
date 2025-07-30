@@ -10,11 +10,12 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import wraps
 from typing import Callable, Dict, List, Optional
-from .ai import do, explain, man, summarize, boilerplate, readmify
+from .ai import do, explain, man, summarize, boilerplate, readmify, chat
 
 
 _available_commands: List["Command"] = []
 _ai_config: Dict = {}
+
 
 @dataclass
 class Argument(ABC):
@@ -123,8 +124,11 @@ def command(args: List[Argument]):
     ]
 )
 def handle_chat(args):
-    """Just chat with an AI from the command line."""
-    pass # TODO
+    """Just chat with an AI from the command line.
+    The AI will have acces to your local shell and can execute commands (if you allow). Go nuts
+    """
+    # TODO handle args
+    chat(_ai_config)
 
 
 @command(
@@ -151,6 +155,7 @@ def handle_explain(args):
 def handle_do(args):
     """Run a shell command based on a natural language description."""
     do(_ai_config, args.prompt)
+
 
 @command(
     [
@@ -251,6 +256,7 @@ def run_cli(argv: Optional[List[str]] = None):
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
+
 
 def main():
     """The main entry point for the command-line interface, called by the `assist` script."""
