@@ -31,23 +31,20 @@ This is a personal project created to better understand how to integrate Large L
 
 ## Configuration
 
-Before using the assistant, you need to configure your AI provider and API key.
+The first time you run any `assist` command, the application will check for a configuration file at `~/.cli-assist/config.json`.
 
-1.  Create a `config.json` file in the root of the project directory.
-2.  Add your configuration details. The structure should look like this:
+If the file is not found, it will prompt you to create one. Upon confirmation, it will open a template file in your default editor (`$EDITOR`). You just need to add your API key.
+
+The default configuration looks like this:
 
     ```json
     {
         "provider": "openai",
         "model": "gpt-4o-mini",
-        "provider_configs": {
-            "openai": {
-                "api_key": "YOUR_API_KEY_HERE"
-            }
-        }
+        "provider_configs": {"openai": {"api_key": "YOUR_API_KEY_HERE"}}
     }
     ```
-    Replace `"YOUR_API_KEY_HERE"` with your actual API key.
+    Replace `"YOUR_API_KEY_HERE"` with your actual API key and save the file to complete the setup.
 
 ## Shell Auto-Completion (Recommended)
 

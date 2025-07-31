@@ -5,6 +5,7 @@ import argcomplete
 import sys
 import os
 import json
+import subprocess
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -67,15 +68,54 @@ class Command:
 def _validate_ai_config():
     global _ai_config
     if not _ai_config:
-        # TODO read it from ~/.cli-assist in the future
-        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        config_path = os.path.join(project_root, "config.json")
-        # TODO ask the user to create the config file if it does not exist
-        # Create a default template and ask the user if they want to open with $EDITOR. If not
-        # let them choose the editor, then open the template so they can edit the configs
+        config_dir = os.path.expanduser("~/.cli-assist")
+        config_path = os.path.join(config_dir, "config.json")
 
-        with open(config_path, "r") as config_file:
-            _ai_config = json.load(config_file)
+        if not os.path.exists(config_path):
+            print(f"Configuration file not found at '{config_path}'.")
+            try:
+                confirm = input("Would you like to create a default configuration file now? [y/N] ")
+                if confirm.lower() != "y":
+                    print("Configuration is required to proceed. Exiting.", file=sys.stderr)
+                    sys.exit(1)
+
+                os.makedirs(config_dir, exist_ok=True)
+
+                config_template = {
+                    "provider": "openai",
+                    "model": "gpt-4o-mini",
+                    "provider_configs": {"openai": {"api_key": "YOUR_API_KEY_HERE"}},
+                }
+
+                with open(config_path, "w") as f:
+                    json.dump(config_template, f, indent=4)
+
+                print(f"\nConfiguration file created at: {config_path}")
+
+                editor = os.getenv("EDITOR", "vim")  # Default to vim if $EDITOR is not set
+                print(f"Opening with '{editor}' for you to add your API key...")
+
+                try:
+                    subprocess.run([editor, config_path], check=True)
+                    print("\nConfiguration saved. Continuing...")
+                except FileNotFoundError:
+                    print(f"\nCould not find editor '{editor}'. Please edit the file manually: {config_path}", file=sys.stderr)
+                    sys.exit(1)
+                except Exception as e:
+                    print(f"\nAn error occurred while opening the editor: {e}", file=sys.stderr)
+                    print(f"Please edit the file manually: {config_path}")
+                    sys.exit(1)
+
+            except (KeyboardInterrupt, EOFError):
+                print("\nOperation cancelled. Exiting.", file=sys.stderr)
+                sys.exit(1)
+
+        try:
+            with open(config_path, "r") as config_file:
+                _ai_config = json.load(config_file)
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"Error reading or parsing configuration file at '{config_path}': {e}", file=sys.stderr)
+            sys.exit(1)
 
 
 def command(args: List[Argument]):
