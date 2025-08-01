@@ -21,7 +21,6 @@ This is a personal project created to better understand how to integrate Large L
     git clone https://github.com/your-username/assistant-cli.git
     cd assistant-cli
     ```
-    *(Remember to replace the URL with your actual repository URL)*
 
 2.  **Install in editable mode:**
     This will install the `assist` command and all its dependencies.
@@ -61,25 +60,17 @@ To enable tab-completion for commands and arguments, you need to register `argco
 ## Running Tests
 
 This project uses Python's built-in `unittest` framework. A helper script is provided to simplify running tests.
+- **Run all tests:**
+  ```bash
+  ./tests/run_tests.sh
+  ```
 
-1.  **Make the script executable:**
-    ```bash
-    chmod +x tests/run_tests.sh
-    ```
+- **Run a specific test suite (e.g., `chat` tests):**
+  ```bash
+  ./tests/run_tests.sh chat
+  ```
 
-2.  **Run tests:**
-
-    - **Run all tests:**
-      ```bash
-      ./tests/run_tests.sh
-      ```
-
-    - **Run a specific test suite (e.g., `chat` tests):**
-      ```bash
-      ./tests/run_tests.sh chat
-      ```
-
-    - **Run a single test case:**
-      ```bash
-      ./tests/run_tests.sh tests.test_agent.TestAgent.test_run_simple_completion
-      ```
+- **Run a single test case:**
+  ```bash
+  ./tests/run_tests.sh tests.test_agent.TestAgent.test_run_simple_completion
+  ```
