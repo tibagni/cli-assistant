@@ -119,7 +119,7 @@ class Agent:
 
         for _ in range(max_iterations):
             response = self.llm.completion(
-                model=f"{self.config["provider"]}:{self.config['model']}",
+                model=f"{self.config['provider']}:{self.config['model']}",
                 messages=self._messages[:], # Pass a copy of _messages
                 tools=self.env.get_tools(),
                 **kwargs
