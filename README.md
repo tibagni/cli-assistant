@@ -18,7 +18,7 @@ This is a personal project created to better understand how to integrate Large L
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/assistant-cli.git
+    git clone https://github.com/tibagni/cli-assistant.git
     cd assistant-cli
     ```
 
