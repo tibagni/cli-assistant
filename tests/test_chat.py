@@ -119,3 +119,28 @@ class TestChatEnvironment(unittest.TestCase):
         mock_response.content = "Some AI response."
         result = self.env.handle_agent_response(mock_response)
         self.assertEqual(result, "a follow-up question")
+
+    def test_terminate_tool_with_message(self):
+        """Test that the terminate tool sets the flag and prints the goodbye message."""
+
+        self.assertFalse(self.env.should_terminate)
+
+        self.env.terminate(goodbye_message="Session ended. Goodbye!")
+
+        self.assertTrue(self.env.should_terminate)
+        self.env.console.print.assert_called_once()
+
+    def test_terminate_tool_without_message(self):
+        """Test that the terminate tool sets the flag without printing a message."""
+
+        self.assertFalse(self.env.should_terminate)
+        self.env.terminate()
+
+        self.assertTrue(self.env.should_terminate)
+        self.env.console.print.assert_not_called()
+
+    def test_handle_agent_response_stops_on_terminate_flag(self):
+        """Verify handle_agent_response returns None if the terminate flag is set."""
+        self.env.should_terminate = True
+        result = self.env.handle_agent_response(MagicMock())
+        self.assertIsNone(result)

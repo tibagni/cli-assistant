@@ -10,25 +10,35 @@ from cli_assistant.ai.llm import LLMCompletionResponse
 from ..agent import Agent, Environment
 from .summarize import _do_summarize
 
+# TODO add readmify and boilerplate as tools as well
+# TODO 
+
 SYSTEM_PROMPT = """
 You are a general-purpose AI assistant running in a command-line environment.
-You can help with a wide range of topics — from writing, coding, and troubleshooting
-to general knowledge — but you are especially skilled at working with command-line tools,
-Bash scripting, and Unix-based systems. You can access special tools that allow you to interact
-with the user's environment
+You can help with a wide range of tasks — from general knowledge, writing,
+and coding to troubleshooting and system operations. While you support all
+types of queries like ChatGPT, you are especially skilled in Bash scripting,
+Unix-based systems, and command-line workflows.
 
-Not all tools will succeed — some actions may be denied or blocked by the user — 
-so you must be resilient and able to continue the conversation even when a tool call fails.
+You have access to special tools that allow you to:
 
-Always be concise and clear, especially when helping with technical or Bash-related tasks.
-Explain commands when useful, and warn about potentially destructive operations.
-Assume you're working in a Unix-like terminal unless told otherwise.
+- Interact with the user's filesystem (e.g., read, write, list files)
+- Execute shell commands
+- Perform common CLI tasks programmatically
 
-While you're optimized for the command line, you can help with anything the user
-might ask — from explaining concepts to writing code, reviewing documents, or offering
-advice — just like ChatGPT.
+Important behavioral rules:
 
-You always aim to be helpful, safe, and user-respecting.
+- If the user requests an action, use tools or execute commands yourself — do not simply suggest
+what the user could do. Only describe actions if they explicitly ask for explanation.
+- If a tool fails (e.g. due to denied permission), continue gracefully and adapt.
+- If no tool is available for a task, consider whether it can be accomplished using shell commands
+or by writing a small script.
+- For complex requests, think step by step, break them into smaller tasks, and execute them in order.
+- Be concise, clear, and helpful — especially when working with technical tasks.
+- Warn the user before executing potentially destructive operations.
+- Assume you’re working in a Unix-like terminal unless told otherwise.
+
+You are always helpful, safe, and user-respecting.
 """
 
 FILE_SIZE_LIMIT = 40000
@@ -38,6 +48,7 @@ class ChatEnvironment(Environment):
         super().__init__()
         self.ai_config = ai_config
         self.console = Console()
+        self.should_terminate = False
 
     @Environment.tool()
     def get_current_working_directory(self) -> str:
@@ -103,14 +114,30 @@ class ChatEnvironment(Environment):
         try:
             with open(path, "w", encoding="utf-8") as f:
                 f.write(content)
-            self.console.print(f"[green]✓ Wrote file:[/] {path}")
+            self.console.print(f"[green]✓ Created file:[/] {path}")
             return f"Successfully created file: {path}"
         except Exception as e:
             return f"Error creating file '{path}': {e}"
+
+    @Environment.tool()
+    def update_existing_file(self, path: str, content: str):
+        """
+        Updates a file at the specified path with the given content (replace the whole content).
+        Fails if the file does not exists.
+        """
+        if not os.path.exists(path):
+            return f"Error: File '{path}' does not exists."
+        try:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(content)
+            self.console.print(f"[green]✓ Updated file:[/] {path}")
+            return f"Successfully updated file: {path}"
+        except Exception as e:
+            return f"Error updating file '{path}': {e}"
         
     @Environment.tool()
     def read_file(self, path: str):
-        """Reads the entire content of a specified file. Limits to 8000 characters."""
+        """Reads the entire content of a specified file. Limits to 40000 characters."""
         try:
             if not os.path.isfile(path):
                 return f"Error: '{path}' is not a file."
@@ -161,6 +188,14 @@ class ChatEnvironment(Environment):
             return f"Error: Command timed out after 60 seconds."
         except Exception as e:
             return f"An unexpected error occurred: {e}"
+
+    @Environment.tool()
+    def terminate(self, goodbye_message: Optional[str] = None):
+        """Terminates the conversation with the user"""
+        self.should_terminate = True
+        if goodbye_message:
+            self.console.print(f"[bold]{goodbye_message}[/]")
+        
         
     def _get_user_confirmation(self, message: str) -> bool:
         try:
@@ -171,6 +206,9 @@ class ChatEnvironment(Environment):
     
     # Keep the agent interactive
     def handle_agent_response(self, agent_response: LLMCompletionResponse) -> Optional[str]:
+        if self.should_terminate:
+            return None
+        
         response = agent_response.content
         if not response:
             return None
