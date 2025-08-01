@@ -1,3 +1,5 @@
+[![Python application](https://github.com/tibagni/cli-assistant/actions/workflows/python-app.yml/badge.svg)](https://github.com/tibagni/cli-assistant/actions/workflows/python-app.yml)
+
 # CLI Assistant
 
 This is a personal project created to better understand how to integrate Large Language Models (LLMs) into a command-line application. It's an AI-powered assistant designed to help with various development tasks.
