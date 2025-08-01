@@ -38,14 +38,14 @@ If the file is not found, it will prompt you to create one. Upon confirmation, i
 
 The default configuration looks like this:
 
-    ```json
-    {
-        "provider": "openai",
-        "model": "gpt-4o-mini",
-        "provider_configs": {"openai": {"api_key": "YOUR_API_KEY_HERE"}}
-    }
-    ```
-    Replace `"YOUR_API_KEY_HERE"` with your actual API key and save the file to complete the setup.
+```json
+{
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "provider_configs": {"openai": {"api_key": "YOUR_API_KEY_HERE"}}
+}
+```
+Replace `"YOUR_API_KEY_HERE"` with your actual API key and save the file to complete the setup.
 
 ## Shell Auto-Completion (Recommended)
 
