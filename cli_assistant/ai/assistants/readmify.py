@@ -146,20 +146,23 @@ class ReadmifyEnvironment(Environment):
         except Exception as e:
             return f"Error writing README.md: {e}"
 
+def _do_readmify(config: Dict, path: str):
+    # The agent will now do the exploration. We just need to give it the starting path.
+    user_task = f"Please generate a README.md file for the project located at '{path}'. Start by exploring the project using the available tools."
+
+    environment = ReadmifyEnvironment(path, config)
+    agent = Agent(config, environment, SYSTEM_PROMPT)
+    # Allow more iterations for exploration
+    return agent.run(user_task, max_iterations=25)
+
 
 def readmify(config: Dict, path: str):
     """Generates a README.md file for a given project path."""
     console = Console()
     console.print(f"[bold yellow]Analyzing project at '{path}' to generate README...[/]")
 
-    # The agent will now do the exploration. We just need to give it the starting path.
-    user_task = f"Please generate a README.md file for the project located at '{path}'. Start by exploring the project using the available tools."
 
-    environment = ReadmifyEnvironment(path, config)
-    agent = Agent(config, environment, SYSTEM_PROMPT)
-
-    # Allow more iterations for exploration
-    response = agent.run(user_task, max_iterations=25)
+    response = _do_readmify(config, path)
     if response.interrupted:
         console.print("\n[bold yellow]Warning: Max iterations reached before the agent could finish.[/]")
     else:

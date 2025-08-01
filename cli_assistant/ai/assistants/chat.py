@@ -9,9 +9,9 @@ from cli_assistant.ai.llm import LLMCompletionResponse
 
 from ..agent import Agent, Environment
 from .summarize import _do_summarize
+from .boilerplate import _do_boilerplate
+from .readmify import _do_readmify
 
-# TODO add readmify and boilerplate as tools as well
-# TODO 
 
 SYSTEM_PROMPT = """
 You are a general-purpose AI assistant running in a command-line environment.
@@ -188,6 +188,31 @@ class ChatEnvironment(Environment):
             return f"Error: Command timed out after 60 seconds."
         except Exception as e:
             return f"An unexpected error occurred: {e}"
+        
+    @Environment.tool()
+    def boilerplate(self, description: str):
+        """Generates a project boilerplate (basic structure) from a natural language description."""
+        self.console.print("[bold yellow]Starting boilerplate generation...[/]")
+
+        response = _do_boilerplate(self.ai_config, description)
+
+        self.console.print("\n[bold green]Boilerplate generation complete![/]")
+        if response.content:
+            return response.content
+
+        return "Boilerplate generation finalized."
+
+    @Environment.tool()
+    def readmify(self, path: str):
+        """Generates a README.md file for a given project path."""
+        self.console.print(f"[bold yellow]Analyzing project at '{path}' to generate README...[/]")
+
+        response = _do_readmify(self.ai_config, path)
+        if response.interrupted:
+            return "Max iterations reached before the agent could finish."
+
+        return "README generation process complete!"
+
 
     @Environment.tool()
     def terminate(self, goodbye_message: Optional[str] = None):

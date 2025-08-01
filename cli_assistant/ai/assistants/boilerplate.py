@@ -57,17 +57,20 @@ class BoilerplateEnvironment(Environment):
         except Exception as e:
             return f"Error creating file '{path}': {e}"
 
+def _do_boilerplate(config: Dict, description: str):
+    environment = BoilerplateEnvironment()
+    agent = Agent(config, environment, SYSTEM_PROMPT)
+
+    # Allow the agent to run for multiple iterations to call tools
+    return agent.run(description, max_iterations=10)
+
 
 def boilerplate(config: Dict, description: str):
     """Generates project boilerplate from a natural language description."""
     console = Console()
     console.print("[bold yellow]Starting boilerplate generation...[/]")
 
-    environment = BoilerplateEnvironment()
-    agent = Agent(config, environment, SYSTEM_PROMPT)
-
-    # Allow the agent to run for multiple iterations to call tools
-    response = agent.run(description, max_iterations=10)
+    response = _do_boilerplate(config, description)
 
     console.print("\n[bold green]Boilerplate generation complete![/]")
     if response.content:
