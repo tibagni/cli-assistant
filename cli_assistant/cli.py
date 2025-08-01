@@ -168,6 +168,9 @@ def handle_chat(args):
     The AI will have acces to your local shell and can execute commands (if you allow). Go nuts
     """
     # TODO handle args
+    if args.list or args.resume:
+        print("'list' and 'resume' are not yet implemented.", file=sys.stderr)
+        sys.exit(1)
     chat(_ai_config)
 
 
