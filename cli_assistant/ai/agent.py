@@ -3,6 +3,7 @@ import os
 import json
 import readline
 
+from rich.console import Console
 from .llm import LLMClient, LLMCompletionResponse
 from typing import List, Dict, Optional, get_type_hints
 
@@ -103,7 +104,7 @@ class Agent:
             self._messages.append(LLMClient.format_system_message(system_prompt))
 
     def run(
-        self, user_task: str, max_iterations: int = 10, **kwargs
+        self, user_task: str, max_iterations: int = 10, show_spinner: bool = True, **kwargs
     ) -> LLMCompletionResponse:
         """
         Executes a task with the agent, returning the final completion response.
@@ -116,14 +117,24 @@ class Agent:
         # This variable will be updated in each loop iteration and is guaranteed
         # to be set because max_iterations is positive.
         response: LLMCompletionResponse = LLMCompletionResponse({})
+        console = Console()
 
         for _ in range(max_iterations):
-            response = self.llm.completion(
-                model=f"{self.config['provider']}:{self.config['model']}",
-                messages=self._messages[:], # Pass a copy of _messages
-                tools=self.env.get_tools(),
-                **kwargs
-            )
+            if show_spinner:
+                with console.status("[bold green]Thinking...[/]"):
+                    response = self.llm.completion(
+                        model=f"{self.config['provider']}:{self.config['model']}",
+                        messages=self._messages[:],  # Pass a copy of _messages
+                        tools=self.env.get_tools(),
+                        **kwargs,
+                    )
+            else:
+                response = self.llm.completion(
+                    model=f"{self.config['provider']}:{self.config['model']}",
+                    messages=self._messages[:],
+                    tools=self.env.get_tools(),
+                    **kwargs,
+                )
 
             # The assistant's response (including content and any tool calls)
             # must be added to the history.
