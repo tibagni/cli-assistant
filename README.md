@@ -18,6 +18,20 @@ This is a personal project created to better understand how to integrate Large L
 
 ## Installation
 
+There are a few ways to install the assistant, depending on your needs.
+
+### Using pipx (Recommended for End-Users)
+
+`pipx` is the best way to install Python command-line tools like `assist`. It installs the application and its dependencies into an isolated environment, preventing conflicts with other Python packages.
+
+```bash
+pipx install git+https://github.com/tibagni/cli-assistant.git
+```
+
+### For Development
+
+If you want to contribute to the project or modify the code, you should clone the repository and install it in editable mode.
+
 1.  **Clone the repository:**
     ```bash
     git clone https://github.com/tibagni/cli-assistant.git
